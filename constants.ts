@@ -1,12 +1,17 @@
 import { SimulationConfig, Playbook } from './types';
 
+// Model IDs verified against each provider's live model list on 2026-10-19.
+// Free-tier-friendly options are listed first within each provider.
 export const AVAILABLE_MODELS = [
-  { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash (Fast & Free)", provider: "google" },
-  { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro (High Intellect)", provider: "google" },
-  { id: "llama3-70b-8192", name: "Llama 3 70B (Groq - Fast & Free)", provider: "groq" },
-  { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B (Groq - Free)", provider: "groq" },
-  { id: "gpt-4o-mini", name: "GPT-4o Mini (OpenAI - Cheap)", provider: "openai" },
-  { id: "gpt-4o", name: "GPT-4o (OpenAI - Powerful)", provider: "openai" },
+  { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash (Fast & Free)", provider: "google" },
+  { id: "gemini-3.5-flash-lite", name: "Gemini 3.5 Flash-Lite (Cheapest)", provider: "google" },
+  { id: "gemini-4-argon", name: "Gemini 4 Argon (Flagship)", provider: "google" },
+  { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B (Groq - Fast & Free)", provider: "groq" },
+  { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant (Groq - Fastest)", provider: "groq" },
+  { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B (Groq - Open Model)", provider: "groq" },
+  { id: "gpt-6-luna", name: "GPT-6 Luna (OpenAI - Cheap)", provider: "openai" },
+  { id: "gpt-6.1-sol", name: "GPT-6.1 Sol (OpenAI - Balanced)", provider: "openai" },
+  { id: "gpt-6-astra", name: "GPT-6 Astra (OpenAI - Powerful)", provider: "openai" },
 ];
 
 export const PLAYBOOKS: Playbook[] = [
@@ -53,9 +58,9 @@ export const DEFAULT_CONFIG: SimulationConfig = {
   targetSystemPrompt: PLAYBOOKS[0].targetSystemPrompt,
   attackerGoal: PLAYBOOKS[0].attackerGoal,
   maxRounds: 5,
-  attackerModel: "llama3-70b-8192",
-  targetModel: "gemini-1.5-flash",
-  judgeModel: "gpt-4o-mini",
+  attackerModel: "llama-3.3-70b-versatile",
+  targetModel: "gemini-3.8-flash",
+  judgeModel: "gpt-6-luna",
   playbookId: PLAYBOOKS[0].id,
   useMockMode: true // Enable by default for zero-setup portfolio demonstration
 };

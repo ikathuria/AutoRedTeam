@@ -11,13 +11,18 @@ secret (or elicit prohibited output) from a **target** model over several rounds
 malicious-code jailbreak, indirect prompt injection. Being extended into a reproducible
 evaluation study of **LLM-judge reliability on obfuscated leaks** — see PLAN.md.
 
-## Current state (audit, 2026-10-19)
+## Current state (M0 done, 2026-10-19)
 - React 19 + Vite + TypeScript browser app; provider clients for Gemini, Groq, OpenAI
   (`services/`), user-supplied API keys via modal; deployed to GitHub Pages
   (`.github/workflows/deploy.yml`) at ishani.kathuria.net/AutoRedTeam.
 - Defaults to **mock mode** (scripted turns) — no measured results exist yet.
-- Default model IDs are retired; `analysis.py` is junk; README is AI Studio boilerplate.
-- No tests, no eval harness.
+- M0 cleanup done: `AVAILABLE_MODELS` + defaults refreshed to currently-served IDs
+  (Gemini 3.x/4, Llama 3.x + gpt-oss on Groq, GPT-6 family), verified against provider
+  model lists 2026-10-19; junk `analysis.py` deleted; README rewritten; GitHub repo
+  description corrected (dropped the false "LangGraph" claim). `npm run build` passes.
+- RQ1 novelty gate checked and **stays open** — no systematic study of judge error on
+  obfuscated secret leaks found; positioning in `docs/related-work.md`.
+- No tests, no eval harness yet (M1+).
 
 ## Stack
 | Layer | Choice |
@@ -37,8 +42,8 @@ eval/ (planned) — see PLAN.md
 ## Status
 | Milestone | Status |
 |---|---|
-| M0 Cleanup + lit check | ⏳ next |
-| M1 Python harness | — |
+| M0 Cleanup + lit check | ✅ done (2026-10-19) |
+| M1 Python harness | ⏳ next |
 | M2 Leak oracle | — |
 | M3 Experiment matrix | — |
 | M4 Judge study | — |
@@ -47,6 +52,9 @@ eval/ (planned) — see PLAN.md
 | M7 Write-up | — |
 
 ## Decision log
+- 2026-10-19 — M0 done. RQ1 gate stays open (no systematic judge-on-obfuscated-leak study;
+  see `docs/related-work.md`). Picked current provider models free-tier-first; defaults mix
+  three families (Groq attacker / Gemini target / OpenAI judge) to avoid self-grading.
 - 2026-10-19 — Reframed from demo to evaluation study. Primary RQ is judge reliability,
   because playbooks have known secrets → deterministic ground truth, and a quick search
   found practitioners hitting judge FN/FP but no systematic study. Keep the React app as
