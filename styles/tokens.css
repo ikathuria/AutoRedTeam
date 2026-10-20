@@ -1,0 +1,81 @@
+/* AutoRedTeam design tokens — SOURCE OF TRUTH (see docs/BRAND.md).
+ * Colors are space-separated RGB channels so Tailwind's `rgb(var(--x) / <alpha-value>)`
+ * mapping supports opacity modifiers (e.g. bg-surface/60). Dark is the default theme
+ * (the live simulator); [data-theme="light"] is the Lab Report palette for results/reading.
+ */
+:root {
+  color-scheme: dark;
+
+  /* neutrals — warm charcoal ramp */
+  --bg: 14 15 18;          /* #0E0F12 */
+  --surface: 22 24 29;     /* #16181D */
+  --surface-2: 29 32 39;   /* #1D2027 */
+  --line: 42 46 55;        /* #2A2E37 */
+  --text: 232 230 225;     /* #E8E6E1 */
+  --muted: 138 143 152;    /* #8A8F98 */
+
+  /* signal (verdict / live / primary action) — acid lime */
+  --accent: 198 255 61;    /* #C6FF3D */
+  --accent-ink: 14 15 18;  /* dark ink on lime */
+
+  /* secondary action / links / focus — signal blue */
+  --primary: 90 169 255;   /* #5AA9FF */
+
+  /* role semantics (consistent across the app) */
+  --attacker: 255 107 107; /* #FF6B6B  Red Team */
+  --defense: 90 169 255;   /* #5AA9FF  Blue Team */
+  --judge: 198 255 61;     /* #C6FF3D  Arbiter / verdict */
+
+  /* status */
+  --danger: 255 107 107;   /* #FF6B6B */
+  --warning: 245 191 66;   /* #F5BF42 */
+  --success: 120 210 140;  /* #78D28C */
+
+  /* radius + motion */
+  --radius: 4px;
+  --radius-lg: 8px;
+  --ease: cubic-bezier(.2, .6, .2, 1);
+  --dur: 160ms;
+}
+
+/* Lab Report — light palette for results/reading surfaces (M6 Results view). */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: 243 245 248;       /* #F3F5F8 */
+  --surface: 255 255 255;  /* #FFFFFF */
+  --surface-2: 247 249 252;/* #F7F9FC */
+  --line: 215 222 232;     /* #D7DEE8 */
+  --text: 11 27 46;        /* #0B1B2E */
+  --muted: 82 98 122;      /* #52627A */
+  --accent: 29 78 216;     /* #1D4ED8  blue is the signal on light (lime is dark-only) */
+  --accent-ink: 255 255 255;
+  --primary: 29 78 216;    /* #1D4ED8 */
+  --attacker: 185 28 28;   /* #B91C1C */
+  --defense: 29 78 216;    /* #1D4ED8 */
+  --judge: 15 118 110;     /* #0F766E  teal */
+  --danger: 185 28 28;
+  --warning: 180 83 9;     /* #B45309 */
+  --success: 15 118 110;
+}
+
+/* base */
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* tabular numerals everywhere numbers carry meaning (dashboards, scores) */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* visible, on-brand focus ring (accessibility) */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--primary));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

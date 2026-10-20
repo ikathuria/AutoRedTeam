@@ -3,10 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AutoRedTeam - LLM Security Simulator</title>
+    <title>AutoRedTeam · LLM red-teaming simulator</title>
+    <meta name="description" content="A multi-agent LLM red-teaming simulator: an attacker model tries to extract a protected secret from a target model while a judge scores each round." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter+Tight:wght@500;700;800&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Tokens are defined in styles/tokens.css (imported in index.tsx) as RGB channels,
+      // so these utilities support opacity modifiers (e.g. border-line/60, bg-attacker/10).
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: "rgb(var(--bg) / <alpha-value>)",
+              surface: "rgb(var(--surface) / <alpha-value>)",
+              "surface-2": "rgb(var(--surface-2) / <alpha-value>)",
+              line: "rgb(var(--line) / <alpha-value>)",
+              text: "rgb(var(--text) / <alpha-value>)",
+              muted: "rgb(var(--muted) / <alpha-value>)",
+              accent: "rgb(var(--accent) / <alpha-value>)",
+              "accent-ink": "rgb(var(--accent-ink) / <alpha-value>)",
+              primary: "rgb(var(--primary) / <alpha-value>)",
+              attacker: "rgb(var(--attacker) / <alpha-value>)",
+              defense: "rgb(var(--defense) / <alpha-value>)",
+              judge: "rgb(var(--judge) / <alpha-value>)",
+              danger: "rgb(var(--danger) / <alpha-value>)",
+              warning: "rgb(var(--warning) / <alpha-value>)",
+              success: "rgb(var(--success) / <alpha-value>)",
+            },
+            fontFamily: {
+              display: ['"Inter Tight"', "system-ui", "sans-serif"],
+              sans: ['"IBM Plex Sans"', "system-ui", "sans-serif"],
+              mono: ['"IBM Plex Mono"', "ui-monospace", "monospace"],
+            },
+            borderRadius: { DEFAULT: "4px", sm: "2px", md: "4px", lg: "8px", xl: "10px" },
+          },
+        },
+      };
+    </script>
   </head>
-  <body class="bg-slate-950 text-slate-200">
+  <body class="bg-bg text-text font-sans">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

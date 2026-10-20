@@ -42,37 +42,40 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   // Check which keys are set
   const keysCount = [apiKeys.gemini, apiKeys.openai, apiKeys.groq].filter(Boolean).length;
 
+  const fieldCls =
+    "w-full bg-bg border border-line rounded p-2 text-xs text-text outline-none focus:border-primary transition-colors";
+
   return (
-    <div className="bg-slate-900 border-r border-slate-800 w-full md:w-80 flex flex-col h-full overflow-y-auto shrink-0 select-none">
+    <div className="bg-surface border-r border-line w-full md:w-80 flex flex-col h-full overflow-y-auto shrink-0 select-none">
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-4 border-b border-line flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-indigo-400" />
-          <h2 className="font-bold text-slate-100 text-sm tracking-wide">Mission Control</h2>
+          <Settings className="w-5 h-5 text-accent" strokeWidth={1.5} />
+          <h2 className="font-display font-bold text-text text-sm tracking-tight">Mission control</h2>
         </div>
         <button
           onClick={onOpenKeyModal}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold border transition-colors ${
-            keysCount > 0 
-              ? 'border-emerald-500/30 bg-emerald-950/20 text-emerald-400 hover:bg-emerald-900/30' 
-              : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700'
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[10px] font-mono font-semibold uppercase tracking-[0.1em] border transition-colors ${
+            keysCount > 0
+              ? 'border-success/40 bg-success/10 text-success hover:bg-success/20'
+              : 'border-line bg-surface-2 text-muted hover:bg-line hover:text-text'
           }`}
           title="Configure API Keys"
         >
-          <Key className="w-3 h-3" />
-          {keysCount > 0 ? `${keysCount} Keys` : 'Set Keys'}
+          <Key className="w-3 h-3" strokeWidth={1.5} />
+          {keysCount > 0 ? `${keysCount} keys` : 'Set keys'}
         </button>
       </div>
 
       <div className="p-4 space-y-5 flex-1">
-        {/* Playbook Playbook Selector */}
+        {/* Playbook Selector */}
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-400">
-            <Sparkles className="w-3 h-3" /> Vulnerability Scenario
+          <label className="flex items-center gap-1.5 text-[10px] font-mono font-semibold uppercase tracking-[0.12em] text-accent">
+            <Sparkles className="w-3 h-3" strokeWidth={1.5} /> Vulnerability scenario
           </label>
           <select
             disabled={isLocked}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 transition-colors"
+            className={fieldCls}
             value={config.playbookId}
             onChange={(e) => handlePlaybookChange(e.target.value)}
           >
@@ -82,19 +85,19 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               </option>
             ))}
           </select>
-          <p className="text-[10px] text-slate-400 italic mt-1 bg-slate-950/40 p-2 rounded border border-slate-800/80">
+          <p className="text-[10px] text-muted mt-1 bg-bg/60 p-2 rounded-sm border border-line">
             {PLAYBOOKS.find(p => p.id === config.playbookId)?.description}
           </p>
         </div>
 
         {/* Secret Configuration */}
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-            <Database className="w-3 h-3" /> Target Secret (Flag)
+          <label className="flex items-center gap-1.5 text-[10px] font-mono font-semibold uppercase tracking-[0.12em] text-judge">
+            <Database className="w-3 h-3" strokeWidth={1.5} /> Target secret (flag)
           </label>
           <textarea
             disabled={isLocked}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-300 focus:border-emerald-500 outline-none transition-colors"
+            className={`${fieldCls} font-mono text-muted`}
             rows={1}
             value={config.targetSecret}
             onChange={(e) => handleChange('targetSecret', e.target.value)}
@@ -103,27 +106,27 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 
         {/* Target System Prompt */}
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-400">
-            <ShieldAlert className="w-3 h-3" /> Blue Team System Prompt (Defense)
+          <label className="flex items-center gap-1.5 text-[10px] font-mono font-semibold uppercase tracking-[0.12em] text-defense">
+            <ShieldAlert className="w-3 h-3" strokeWidth={1.5} /> Blue team system prompt
           </label>
           <textarea
             disabled={isLocked}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-300 focus:border-blue-500 outline-none transition-colors font-mono"
+            className={`${fieldCls} font-mono`}
             rows={4}
             value={config.targetSystemPrompt}
             onChange={(e) => handleChange('targetSystemPrompt', e.target.value)}
           />
-          <p className="text-[9px] text-slate-500">Inject code with <code className="text-slate-300 font-mono">{'{SECRET}'}</code>.</p>
+          <p className="text-[9px] text-muted">Inject the secret with <code className="text-text font-mono">{'{SECRET}'}</code>.</p>
         </div>
 
         {/* Attacker Goal */}
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-rose-400">
-            <Target className="w-3 h-3" /> Red Team Goal (Attack)
+          <label className="flex items-center gap-1.5 text-[10px] font-mono font-semibold uppercase tracking-[0.12em] text-attacker">
+            <Target className="w-3 h-3" strokeWidth={1.5} /> Red team goal
           </label>
           <textarea
             disabled={isLocked}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-300 focus:border-rose-500 outline-none transition-colors"
+            className={fieldCls}
             rows={2}
             value={config.attackerGoal}
             onChange={(e) => handleChange('attackerGoal', e.target.value)}
@@ -131,14 +134,14 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         </div>
 
         {/* Models Config Panel */}
-        <div className="border-t border-slate-800 pt-4 space-y-3">
-          <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Agent Duel Configuration</h3>
-          
+        <div className="border-t border-line pt-4 space-y-3">
+          <h3 className="text-[10px] font-mono font-semibold uppercase tracking-[0.12em] text-muted">Agent configuration</h3>
+
           <div className="space-y-1.5">
-            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Red Team (Attacker)</label>
+            <label className="text-[9px] font-mono font-semibold text-attacker uppercase tracking-[0.1em]">Red team (attacker)</label>
             <select
               disabled={isLocked || config.useMockMode}
-              className="w-full bg-slate-950 border border-slate-700 rounded-md p-1.5 text-[11px] text-white outline-none disabled:opacity-50"
+              className="w-full bg-bg border border-line rounded-sm p-1.5 text-[11px] text-text outline-none focus:border-primary disabled:opacity-50"
               value={config.attackerModel}
               onChange={(e) => handleChange('attackerModel', e.target.value)}
             >
@@ -149,10 +152,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Blue Team (Target)</label>
+            <label className="text-[9px] font-mono font-semibold text-defense uppercase tracking-[0.1em]">Blue team (target)</label>
             <select
               disabled={isLocked || config.useMockMode}
-              className="w-full bg-slate-950 border border-slate-700 rounded-md p-1.5 text-[11px] text-white outline-none disabled:opacity-50"
+              className="w-full bg-bg border border-line rounded-sm p-1.5 text-[11px] text-text outline-none focus:border-primary disabled:opacity-50"
               value={config.targetModel}
               onChange={(e) => handleChange('targetModel', e.target.value)}
             >
@@ -163,10 +166,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Arbiter (Safety Judge)</label>
+            <label className="text-[9px] font-mono font-semibold text-judge uppercase tracking-[0.1em]">Arbiter (safety judge)</label>
             <select
               disabled={isLocked || config.useMockMode}
-              className="w-full bg-slate-950 border border-slate-700 rounded-md p-1.5 text-[11px] text-white outline-none disabled:opacity-50"
+              className="w-full bg-bg border border-line rounded-sm p-1.5 text-[11px] text-text outline-none focus:border-primary disabled:opacity-50"
               value={config.judgeModel}
               onChange={(e) => handleChange('judgeModel', e.target.value)}
             >
@@ -178,39 +181,39 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         </div>
 
         {/* Mock Mode Toggle */}
-        <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
-          <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            <span>Mock Simulation Mode</span>
-            <HelpCircle className="w-3.5 h-3.5 text-slate-500 cursor-help" title="If enabled, uses pre-scripted high-fidelity simulation transcripts. Ideal for portfolio demos without setting up API keys." />
+        <div className="border-t border-line pt-4 flex items-center justify-between">
+          <div className="flex items-center gap-1 text-[10px] font-mono font-semibold uppercase tracking-[0.12em] text-muted">
+            <span>Mock mode</span>
+            <HelpCircle className="w-3.5 h-3.5 text-muted cursor-help" strokeWidth={1.5} title="If enabled, uses pre-scripted high-fidelity simulation transcripts. Ideal for portfolio demos without setting up API keys." />
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               disabled={isLocked}
               checked={config.useMockMode}
               onChange={(e) => handleChange('useMockMode', e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-indigo-600"></div>
+            <div className="w-9 h-5 bg-surface-2 border border-line peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-primary rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-muted after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent peer-checked:after:bg-accent-ink"></div>
           </label>
         </div>
       </div>
 
       {/* Control Buttons */}
-      <div className="p-4 border-t border-slate-800 space-y-2 bg-slate-950/40">
+      <div className="p-4 border-t border-line space-y-2 bg-bg/40">
         {status === SimulationStatus.IDLE || status === SimulationStatus.FINISHED ? (
           <button
             onClick={onStart}
-            className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs transition-colors flex justify-center items-center gap-2 shadow-lg shadow-indigo-600/10"
+            className="w-full py-2 bg-accent hover:bg-accent/90 text-accent-ink rounded font-display font-bold text-xs tracking-wide transition-colors flex justify-center items-center gap-2"
           >
-            Start Simulation
+            Start simulation
           </button>
         ) : (
           <button
             onClick={onStop}
-            className="w-full py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-rose-600/10"
+            className="w-full py-2 bg-danger hover:bg-danger/90 text-bg rounded font-display font-bold text-xs tracking-wide transition-colors"
           >
-            {status === SimulationStatus.PAUSED ? "Resume Simulation" : "Pause Simulation"}
+            {status === SimulationStatus.PAUSED ? "Resume simulation" : "Pause simulation"}
           </button>
         )}
 
@@ -218,7 +221,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           <button
             onClick={onReset}
             disabled={status === SimulationStatus.RUNNING}
-            className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md font-bold text-[10px] tracking-wide transition-colors disabled:opacity-40"
+            className="flex-1 py-1.5 bg-surface-2 hover:bg-line text-text rounded-sm font-mono font-semibold text-[10px] uppercase tracking-[0.1em] transition-colors disabled:opacity-40"
           >
             Reset
           </button>
@@ -227,18 +230,18 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             <button
               onClick={onExport}
               disabled={!hasData}
-              className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-md font-bold text-[10px] tracking-wide transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
+              className="flex-1 py-1.5 bg-surface-2 hover:bg-line text-judge rounded-sm font-mono font-semibold text-[10px] uppercase tracking-[0.1em] transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
               title="Export to CSV"
             >
-              <Download className="w-3.5 h-3.5" /> CSV
+              <Download className="w-3.5 h-3.5" strokeWidth={1.5} /> CSV
             </button>
             <button
               onClick={onExportMarkdown}
               disabled={!hasData}
-              className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-md font-bold text-[10px] tracking-wide transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
+              className="flex-1 py-1.5 bg-surface-2 hover:bg-line text-primary rounded-sm font-mono font-semibold text-[10px] uppercase tracking-[0.1em] transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
               title="Export Report (Markdown)"
             >
-              <Download className="w-3.5 h-3.5" /> MD
+              <Download className="w-3.5 h-3.5" strokeWidth={1.5} /> MD
             </button>
           </div>
         </div>

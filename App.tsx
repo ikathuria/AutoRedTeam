@@ -290,7 +290,7 @@ const App: React.FC = () => {
   }, [status, currentRound, runTurn]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden font-sans bg-slate-950 text-slate-200">
+    <div className="flex h-screen w-screen overflow-hidden font-sans bg-bg text-text">
       <ConfigPanel
         config={config}
         setConfig={setConfig}
@@ -306,27 +306,28 @@ const App: React.FC = () => {
       />
 
       <div className="flex-1 flex flex-col relative min-w-0">
-        <header className="h-14 bg-slate-900 border-b border-slate-800/80 flex items-center px-6 justify-between shrink-0 select-none z-20">
+        <header className="h-14 bg-surface border-b border-line flex items-center px-6 justify-between shrink-0 select-none z-20">
           <div className="flex items-center gap-3">
-            <h1 className="font-bold text-sm md:text-base tracking-wide bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="w-6 h-6 rounded grid place-items-center bg-accent text-accent-ink font-mono font-bold text-sm shrink-0">A</span>
+            <h1 className="font-mono font-semibold text-sm md:text-base tracking-tight text-text">
               AutoRedTeam
             </h1>
-            <span className="text-slate-600 text-[10px] font-mono hidden sm:inline">// MULTI_AGENT_SIMULATOR</span>
+            <span className="text-muted text-[10px] font-mono tracking-[0.16em] uppercase hidden sm:inline">Multi-agent simulator</span>
             {config.useMockMode ? (
-              <span className="bg-amber-950/30 border border-amber-500/20 text-amber-400 text-[8px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                Mock Mode Active
+              <span className="bg-surface-2 border border-line text-muted text-[9px] font-mono px-2 py-0.5 rounded-sm font-semibold uppercase tracking-[0.14em]">
+                Mock mode
               </span>
             ) : (
-              <span className="bg-indigo-950/30 border border-indigo-500/20 text-indigo-400 text-[8px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider animate-pulse">
-                Live Duel Active
+              <span className="bg-accent/10 border border-accent/40 text-accent text-[9px] font-mono px-2 py-0.5 rounded-sm font-semibold uppercase tracking-[0.14em]">
+                ● Live duel
               </span>
             )}
           </div>
-          
-          <div className="flex items-center gap-4 text-[10px] text-slate-500 font-mono">
-            <span className="hidden md:inline">VERSION: v1.1.0</span>
-            <span className={status === SimulationStatus.RUNNING ? 'text-indigo-400' : 'text-slate-500'}>
-              SYS_LOAD: {status === SimulationStatus.RUNNING ? 'ACTIVE' : 'IDLE'}
+
+          <div className="flex items-center gap-4 text-[10px] text-muted font-mono tracking-[0.1em]">
+            <span className="hidden md:inline">v1.1.0</span>
+            <span className={status === SimulationStatus.RUNNING ? 'text-accent' : 'text-muted'}>
+              ● {status === SimulationStatus.RUNNING ? 'ACTIVE' : 'IDLE'}
             </span>
           </div>
         </header>

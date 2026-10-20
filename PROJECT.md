@@ -36,6 +36,7 @@ evaluation study of **LLM-judge reliability on obfuscated leaks** — see PLAN.m
 ```
 App.tsx, components/, services/ (geminiService, groqService, openaiService, llmFactory),
 constants.ts (models, playbooks, prompts), types.ts — demo UI
+docs/BRAND.md + styles/tokens.css — "Signal Lab" design system (Tailwind CDN tokens)
 eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompts,playbooks.yaml},
   configs/smoke.yaml, tests/. OpenAI-compat backends + content-hash cache + resumable JSONL.
   Run: `cd eval && uv sync --extra dev && uv run redteam-eval --config configs/smoke.yaml --fake`
@@ -54,6 +55,13 @@ eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompt
 | M7 Write-up | — |
 
 ## Decision log
+- 2026-10-20 — UI rebranded via brand-studio to **"Signal Lab"** (fusion of the two directions
+  Ishani liked: dark "Signal Console" + light "Lab Report"). Tokens in `styles/tokens.css`
+  (RGB-channel CSS vars → Tailwind CDN config in index.html), guidelines in `docs/BRAND.md`.
+  Dark default (simulator); light `[data-theme="light"]` palette defined for the M6 Results view.
+  Retired slate+indigo defaults across header/config/transcript/telemetry/modal + chart colors.
+  Fonts: Inter Tight (display) / IBM Plex Sans (body) / IBM Plex Mono (data). Build passes;
+  visual/axe/Lighthouse audits deferred (no browser in session); contrast matrix in BRAND.md is ≥AA.
 - 2026-10-19 — API budget decision: **free tiers only** (Ishani). M3 grid uses Groq (Llama
   3.3 70B, Llama 3.1 8B, gpt-oss-20b) + Gemini (3.8 Flash, 3.5 Flash-Lite) = 5 targets / 3
   families; attacker Llama 3.3 70B, judge Gemini 3.8 Flash (different family). `configs/m3_matrix.yaml`
