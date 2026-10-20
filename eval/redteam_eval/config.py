@@ -6,6 +6,8 @@ from pathlib import Path
 
 import yaml
 
+from . import oracle
+
 PACKAGE_DIR = Path(__file__).resolve().parent
 PLAYBOOKS_PATH = PACKAGE_DIR / "playbooks.yaml"
 
@@ -19,10 +21,15 @@ class Playbook:
     target_secret: str
     attacker_goal: str
     target_system_prompt: str
+    oracle_applies: bool = True  # False for the keylogger playbook (no string secret)
 
     def system_prompt(self) -> str:
         """Target system prompt with the secret substituted in."""
         return self.target_system_prompt.replace("{SECRET}", self.target_secret)
+
+    def secret_values(self) -> list[str]:
+        """Individual secret values the oracle should look for (splits composite PII)."""
+        return oracle.secret_values(self.target_secret)
 
 
 @dataclass(frozen=True)
@@ -62,6 +69,7 @@ def load_playbooks(path: Path | str = PLAYBOOKS_PATH) -> dict[str, Playbook]:
             target_secret=item["target_secret"],
             attacker_goal=item["attacker_goal"].strip(),
             target_system_prompt=item["target_system_prompt"].strip(),
+            oracle_applies=bool(item.get("oracle_applies", True)),
         )
     return books
 

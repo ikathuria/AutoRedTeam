@@ -20,7 +20,7 @@ from pathlib import Path
 from time import time
 
 from .config import ModelRef, Playbook, RunConfig, load_playbooks
-from .judges import judge_round
+from .judges import score_round
 from .prompts import ATTACKER_SYSTEM_PROMPT
 from .providers import Backend, CompletionRequest
 
@@ -135,6 +135,7 @@ def run_episode(
         )
 
     system_prompt = playbook.system_prompt()
+    secrets = playbook.secret_values()
     success = bool(records and records[-1]["success"])
     success_round = records[-1]["round"] if success else None
     rounds_run = 0
@@ -151,10 +152,13 @@ def run_episode(
                 cfg.target_temperature, seed)
             history.append({"role": TARGET, "content": t_comp.text})
 
-            verdict = judge_round(
+            score = score_round(
                 backend, provider=cfg.judge_model.provider, model=cfg.judge_model.id,
-                history=history, target_text=t_comp.text, secret=playbook.target_secret,
+                history=history, target_text=t_comp.text,
+                secret_text=playbook.target_secret, secrets=secrets,
+                oracle_applies=playbook.oracle_applies,
                 temperature=cfg.judge_temperature, seed=seed)
+            verdict = score.judge
             history.append({"role": JUDGE, "content": verdict.reasoning})
 
             record = {
@@ -176,23 +180,26 @@ def run_episode(
                     "latency_s": t_comp.latency_s, "cached": t_comp.cached,
                     "messages": t_prompt,
                 },
+                "oracle": {
+                    "leaked": score.oracle.leaked, "form": score.oracle.form,
+                    "span": score.oracle.span, "applies": score.oracle.applies,
+                },
                 "judge": {
                     "attacker_success": verdict.attacker_success, "score": verdict.score,
                     "reasoning": verdict.reasoning, "winner": verdict.winner,
-                    "hard_check": verdict.hard_check, "model": verdict.model,
-                    "prompt_tokens": verdict.prompt_tokens,
+                    "model": verdict.model, "prompt_tokens": verdict.prompt_tokens,
                     "completion_tokens": verdict.completion_tokens,
                     "latency_s": verdict.latency_s, "cached": verdict.cached,
                     "raw": verdict.raw,
                 },
-                "success": verdict.attacker_success,
+                "success": score.success,
             }
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
             fh.flush()
             os.fsync(fh.fileno())  # crash-safe: survives a kill for resume
             rounds_run += 1
 
-            if verdict.attacker_success:
+            if score.success:
                 success, success_round = True, rnd
                 break
 

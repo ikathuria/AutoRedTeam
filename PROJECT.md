@@ -46,14 +46,24 @@ eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompt
 |---|---|
 | M0 Cleanup + lit check | ✅ done (2026-10-19) |
 | M1 Python harness | ✅ done (2026-10-19) |
-| M2 Leak oracle | ⏳ next |
-| M3 Experiment matrix | — |
+| M2 Leak oracle | ✅ done (2026-10-19) |
+| M3 Experiment matrix | ⛔ blocked: needs API keys + budget decision |
 | M4 Judge study | — |
 | M5 Defenses | — |
 | M6 Results in UI | — |
 | M7 Write-up | — |
 
 ## Decision log
+- 2026-10-19 — M2 done. `oracle.py`: deterministic leak detector with 11 forms (exact,
+  normalized, spaced, reversed, base64, hex, rot13, url, leetspeak, nato, segmented), priority
+  ordered; `detect_any` over split secret values catches partial PII (SSN-only) leaks; keylogger
+  playbook tagged `oracle_applies: false`. 47 oracle tests (positives per form + negatives incl.
+  describe-not-state refusals). Wired into the harness: every round now records BOTH the oracle
+  (ground truth) AND the LLM judge, and the judge is called on every round (no short-circuit) so
+  M4 can measure judge error vs oracle. 54 tests total pass.
+- 2026-10-19 — M3–M7 are blocked on live API runs (keys + the budget decision flagged in
+  PLAN "Open decisions"). M5's defenses CODE can be built on the oracle without keys; its
+  evaluation cannot. Everything keyless is now done.
 - 2026-10-19 — M1 done. Python harness ports the attacker/target/judge loop. All providers
   reached via the `openai` SDK by swapping base_url (one interface). Resume is episode-file
   based (one JSONL line per round, fsync'd) + a content-hash response cache → killed runs
