@@ -6,8 +6,11 @@ import ConfigPanel from './components/ConfigPanel';
 import ChatFeed from './components/ChatFeed';
 import AnalysisPanel from './components/AnalysisPanel';
 import ApiKeyModal from './components/ApiKeyModal';
+import { Sun, Moon } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(7);
+
+type Theme = 'dark' | 'light';
 
 const App: React.FC = () => {
   const [config, setConfig] = useState<SimulationConfig>(DEFAULT_CONFIG);
@@ -23,6 +26,18 @@ const App: React.FC = () => {
     groq: localStorage.getItem('art_groq_key') || ''
   });
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+
+  // Theme: 'dark' (simulator default) or 'light' (Lab Report). Initialized pre-paint in index.html.
+  const [theme, setTheme] = useState<Theme>(
+    () => (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+  );
+
+  const toggleTheme = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next; // apply synchronously so the chart re-reads tokens
+    try { localStorage.setItem('art_theme', next); } catch { /* ignore */ }
+    setTheme(next);
+  };
 
   // Refs for tracking mutable state in loops
   const statusRef = useRef(status);
@@ -329,6 +344,16 @@ const App: React.FC = () => {
             <span className={status === SimulationStatus.RUNNING ? 'text-accent' : 'text-muted'}>
               ● {status === SimulationStatus.RUNNING ? 'ACTIVE' : 'IDLE'}
             </span>
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-sm border border-line bg-surface-2 text-muted hover:text-text transition-colors"
+              title={theme === 'dark' ? 'Switch to light (Lab Report)' : 'Switch to dark (Signal Console)'}
+              aria-label="Toggle color theme"
+            >
+              {theme === 'dark'
+                ? <Sun className="w-3.5 h-3.5" strokeWidth={1.5} />
+                : <Moon className="w-3.5 h-3.5" strokeWidth={1.5} />}
+            </button>
           </div>
         </header>
         
@@ -340,6 +365,7 @@ const App: React.FC = () => {
         status={status}
         currentRound={currentRound}
         config={config}
+        theme={theme}
       />
 
       <ApiKeyModal

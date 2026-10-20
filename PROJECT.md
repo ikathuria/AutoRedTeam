@@ -58,7 +58,8 @@ eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompt
 - 2026-10-20 — UI rebranded via brand-studio to **"Signal Lab"** (fusion of the two directions
   Ishani liked: dark "Signal Console" + light "Lab Report"). Tokens in `styles/tokens.css`
   (RGB-channel CSS vars → Tailwind CDN config in index.html), guidelines in `docs/BRAND.md`.
-  Dark default (simulator); light `[data-theme="light"]` palette defined for the M6 Results view.
+  Dark default (simulator) with a header **light/dark toggle** (`data-theme` on <html>, persisted
+  in localStorage, set pre-paint in index.html; chart colors re-read tokens on theme change).
   Retired slate+indigo defaults across header/config/transcript/telemetry/modal + chart colors.
   Fonts: Inter Tight (display) / IBM Plex Sans (body) / IBM Plex Mono (data). Build passes;
   visual/axe/Lighthouse audits deferred (no browser in session); contrast matrix in BRAND.md is ≥AA.

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { JudgeVerdict, SimulationStatus, SimulationConfig } from '../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CheckCircle, XCircle, Activity, ShieldAlert, Cpu } from 'lucide-react';
@@ -9,17 +9,22 @@ interface AnalysisPanelProps {
   status: SimulationStatus;
   currentRound: number;
   config: SimulationConfig;
+  theme?: 'dark' | 'light';
 }
 
-// Brand token hexes (dark theme) for the recharts SVG, which can't take Tailwind classes.
-const C = {
-  attacker: '#FF6B6B',
-  line: '#2A2E37',
-  muted: '#8A8F98',
-  surface: '#16181D',
-};
+// Recharts can't take Tailwind classes, so resolve the brand tokens to concrete rgb()
+// strings from CSS variables. Keyed on theme so the chart recolors when the theme flips.
+const resolveToken = (name: string) =>
+  `rgb(${getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '0 0 0'})`;
 
-const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ verdicts, status, currentRound, config }) => {
+const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ verdicts, status, currentRound, config, theme = 'dark' }) => {
+  const C = useMemo(() => ({
+    attacker: resolveToken('--attacker'),
+    line: resolveToken('--line'),
+    muted: resolveToken('--muted'),
+    surface: resolveToken('--surface'),
+  }), [theme]);
+
   const lastVerdict = verdicts[verdicts.length - 1];
   const chartData = verdicts.map(v => ({ round: `R${v.round}`, score: v.score }));
 
