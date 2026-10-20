@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from time import time
 
+from . import defenses
 from .config import ModelRef, Playbook, RunConfig, load_playbooks
 from .judges import score_round
 from .prompts import ATTACKER_SYSTEM_PROMPT
@@ -134,7 +135,7 @@ def run_episode(
             resumed_from=resumed_from,
         )
 
-    system_prompt = playbook.system_prompt()
+    system_prompt = defenses.apply_prompt_defense(cfg.defense, playbook.system_prompt())
     secrets = playbook.secret_values()
     success = bool(records and records[-1]["success"])
     success_round = records[-1]["round"] if success else None
@@ -150,11 +151,15 @@ def run_episode(
             t_comp, t_prompt = target_response(
                 backend, target_model, history, system_prompt,
                 cfg.target_temperature, seed)
-            history.append({"role": TARGET, "content": t_comp.text})
+            # Output-filter defense (RQ3): replace a leaking response with a refusal.
+            filt = defenses.apply_output_defense(
+                cfg.defense, t_comp.text, secrets, oracle_applies=playbook.oracle_applies)
+            target_text = filt.text
+            history.append({"role": TARGET, "content": target_text})
 
             score = score_round(
                 backend, provider=cfg.judge_model.provider, model=cfg.judge_model.id,
-                history=history, target_text=t_comp.text,
+                history=history, target_text=target_text,
                 secret_text=playbook.target_secret, secrets=secrets,
                 oracle_applies=playbook.oracle_applies,
                 temperature=cfg.judge_temperature, seed=seed)
@@ -174,7 +179,9 @@ def run_episode(
                     "messages": a_prompt,
                 },
                 "target": {
-                    "response": t_comp.text, "model": t_comp.model,
+                    "response": target_text, "raw_response": t_comp.text,
+                    "defense": cfg.defense, "defense_blocked": filt.blocked,
+                    "defense_form": filt.form, "model": t_comp.model,
                     "prompt_tokens": t_comp.prompt_tokens,
                     "completion_tokens": t_comp.completion_tokens,
                     "latency_s": t_comp.latency_s, "cached": t_comp.cached,

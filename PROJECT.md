@@ -48,12 +48,19 @@ eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompt
 | M1 Python harness | ✅ done (2026-10-19) |
 | M2 Leak oracle | ✅ done (2026-10-19) |
 | M3 Experiment matrix | ⛔ blocked: needs API keys + budget decision |
-| M4 Judge study | — |
-| M5 Defenses | — |
+| M4 Judge study | ⛔ blocked: needs M3 run data + human labels |
+| M5 Defenses | 🟡 code done (prompt + oracle filter + benign set); eval blocked on keys |
 | M6 Results in UI | — |
 | M7 Write-up | — |
 
 ## Decision log
+- 2026-10-19 — M5 code done (eval blocked on keys). `defenses.py`: hardened system-prompt
+  preamble (prompt defense) + deterministic oracle-based output filter that blocks leaks in
+  any oracle-recognised form (catches what the judge misses). Modes none|prompt|filter|both via
+  `RunConfig.defense`, wired into the loop; each round records raw+filtered target response and
+  whether the filter fired. `benign_queries.yaml` seed utility set (~15/domain; extend to
+  ~50/domain for the run) for false-refusal rate. 8 defense tests incl. end-to-end filter;
+  62 tests total. The ASR-reduction vs false-refusal TABLE (M5 done-when) needs live runs.
 - 2026-10-19 — M2 done. `oracle.py`: deterministic leak detector with 11 forms (exact,
   normalized, spaced, reversed, base64, hex, rot13, url, leetspeak, nato, segmented), priority
   ordered; `detect_any` over split secret values catches partial PII (SSN-only) leaks; keylogger

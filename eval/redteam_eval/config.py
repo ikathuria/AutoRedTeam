@@ -55,6 +55,7 @@ class RunConfig:
     attacker_temperature: float = 0.9
     target_temperature: float = 0.1
     judge_temperature: float = 0.0
+    defense: str = "none"  # none | prompt | filter | both (RQ3)
 
 
 def load_playbooks(path: Path | str = PLAYBOOKS_PATH) -> dict[str, Playbook]:
@@ -100,4 +101,5 @@ def load_run_config(path: Path | str) -> RunConfig:
         attacker_temperature=float(raw.get("attacker_temperature", 0.9)),
         target_temperature=float(raw.get("target_temperature", 0.1)),
         judge_temperature=float(raw.get("judge_temperature", 0.0)),
+        defense=str(raw.get("defense", "none")),
     )

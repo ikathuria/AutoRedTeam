@@ -42,12 +42,24 @@ redteam_eval/
   playbooks.yaml  # the 4 playbooks (ported from constants.ts; synthetic secrets)
   prompts.py      # attacker / judge system prompts
   providers.py    # OpenAI-compatible backends (Groq/Gemini/OpenAI), cache, retries, FakeBackend
-  judges.py       # hard substring check + LLM judge (JSON-parsed)
+  oracle.py       # deterministic obfuscation-aware leak oracle (RQ1 ground truth)
+  judges.py       # per-round scoring: oracle (ground truth) + LLM judge (studied in M4)
+  defenses.py     # hardened system prompt + oracle-based output filter (RQ3)
+  benign_queries.yaml  # benign utility set for false-refusal measurement (RQ3)
   loop.py         # episode runner + JSONL + resume
   __main__.py     # CLI (redteam-eval)
-configs/          # experiment grids (smoke.yaml)
-tests/            # fake-provider tests
+configs/          # experiment grids (smoke.yaml, defenses.yaml)
+tests/            # fake-provider tests (loop, oracle, defenses)
 ```
+
+## Defenses (RQ3)
+
+Set `defense:` in a run config to `none` (default), `prompt` (hardened system prompt),
+`filter` (deterministic oracle-based output filter — blocks leaks the LLM judge misses), or
+`both`. Each round records the raw and filtered target responses plus whether the filter
+fired, so ASR-with-defense is comparable to the baseline. The utility cost (false-refusal
+rate) is measured against `benign_queries.yaml`. The mechanisms are keyless and tested; the
+ASR-reduction / false-refusal *evaluation* needs live model runs.
 
 Providers are reached through the `openai` SDK by swapping `base_url` (verified 2026-10-19):
 Groq `https://api.groq.com/openai/v1`, Gemini

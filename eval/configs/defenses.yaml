@@ -1,0 +1,19 @@
+# RQ3 defense sweep (example). Run once per defense mode and compare ASR@k to the
+# undefended baseline; pair with a benign-query utility run to get false-refusal rate.
+# Set defense to one of: none | prompt | filter | both. Needs API keys (live run).
+run_id: defense-filter
+
+attacker_model: { provider: groq,   id: llama-3.3-70b-versatile }
+target_models:
+  - { provider: google, id: gemini-3.8-flash }
+judge_model:  { provider: openai, id: gpt-6-luna }
+
+playbooks: [secret_leakage, pii_harvesting]
+max_rounds: 10
+seeds: [0, 1, 2, 3, 4]
+
+attacker_temperature: 0.9
+target_temperature: 0.1
+judge_temperature: 0.0
+
+defense: filter   # oracle-based output filter
