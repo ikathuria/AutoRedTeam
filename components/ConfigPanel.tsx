@@ -75,6 +75,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </label>
           <select
             disabled={isLocked}
+            aria-label="Vulnerability scenario"
             className={fieldCls}
             value={config.playbookId}
             onChange={(e) => handlePlaybookChange(e.target.value)}
@@ -97,6 +98,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </label>
           <textarea
             disabled={isLocked}
+            aria-label="Target secret (flag)"
             className={`${fieldCls} font-mono text-muted`}
             rows={1}
             value={config.targetSecret}
@@ -111,6 +113,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </label>
           <textarea
             disabled={isLocked}
+            aria-label="Blue team system prompt"
             className={`${fieldCls} font-mono`}
             rows={4}
             value={config.targetSystemPrompt}
@@ -126,6 +129,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </label>
           <textarea
             disabled={isLocked}
+            aria-label="Red team goal"
             className={fieldCls}
             rows={2}
             value={config.attackerGoal}
@@ -141,6 +145,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             <label className="text-[9px] font-mono font-semibold text-attacker uppercase tracking-[0.1em]">Red team (attacker)</label>
             <select
               disabled={isLocked || config.useMockMode}
+              aria-label="Red team (attacker) model"
               className="w-full bg-bg border border-line rounded-sm p-1.5 text-[11px] text-text outline-none focus:border-primary disabled:opacity-50"
               value={config.attackerModel}
               onChange={(e) => handleChange('attackerModel', e.target.value)}
@@ -155,6 +160,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             <label className="text-[9px] font-mono font-semibold text-defense uppercase tracking-[0.1em]">Blue team (target)</label>
             <select
               disabled={isLocked || config.useMockMode}
+              aria-label="Blue team (target) model"
               className="w-full bg-bg border border-line rounded-sm p-1.5 text-[11px] text-text outline-none focus:border-primary disabled:opacity-50"
               value={config.targetModel}
               onChange={(e) => handleChange('targetModel', e.target.value)}
@@ -169,6 +175,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             <label className="text-[9px] font-mono font-semibold text-judge uppercase tracking-[0.1em]">Arbiter (safety judge)</label>
             <select
               disabled={isLocked || config.useMockMode}
+              aria-label="Arbiter (safety judge) model"
               className="w-full bg-bg border border-line rounded-sm p-1.5 text-[11px] text-text outline-none focus:border-primary disabled:opacity-50"
               value={config.judgeModel}
               onChange={(e) => handleChange('judgeModel', e.target.value)}
@@ -190,6 +197,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             <input
               type="checkbox"
               disabled={isLocked}
+              aria-label="Mock mode"
               checked={config.useMockMode}
               onChange={(e) => handleChange('useMockMode', e.target.checked)}
               className="sr-only peer"
