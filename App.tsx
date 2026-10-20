@@ -27,6 +27,9 @@ const App: React.FC = () => {
   });
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
+  // Which pane is shown on mobile (all three show side-by-side on md+).
+  const [mobileTab, setMobileTab] = useState<'config' | 'transcript' | 'telemetry'>('config');
+
   // Theme: 'dark' (simulator default) or 'light' (Lab Report). Initialized pre-paint in index.html.
   const [theme, setTheme] = useState<Theme>(
     () => (typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
@@ -48,6 +51,12 @@ const App: React.FC = () => {
 
   const apiKeysRef = useRef(apiKeys);
   apiKeysRef.current = apiKeys;
+
+  // Read messages inside the loop without making runTurn depend on them (that caused
+  // re-entrant, overlapping turns). isProcessingRef guards against any concurrent run.
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+  const isProcessingRef = useRef(false);
 
   const addMessage = (role: AgentRole, content: string, thought?: string, modelName?: string) => {
     setMessages(prev => [...prev, {
@@ -169,6 +178,9 @@ const App: React.FC = () => {
 
   // The Game Loop
   const runTurn = useCallback(async () => {
+    if (isProcessingRef.current) return; // guard against overlapping turns
+    isProcessingRef.current = true;
+    try {
     if (statusRef.current !== SimulationStatus.RUNNING) return;
     if (currentRound >= configRef.current.maxRounds) {
       setStatus(SimulationStatus.FINISHED);
@@ -223,7 +235,7 @@ const App: React.FC = () => {
     // B. LIVE LLM DUEL SIMULATION
     try {
       // 1. Attacker Move
-      const historyForAttacker = messages;
+      const historyForAttacker = messagesRef.current;
       const attackerProvider = getLLMProvider(configRef.current.attackerModel);
       const { content: attackerMsgContent, thought: attackerThought } = await attackerProvider.generateAttackerMove(
         historyForAttacker,
@@ -236,9 +248,9 @@ const App: React.FC = () => {
       addMessage(AgentRole.ATTACKER, attackerMsgContent, attackerThought, configRef.current.attackerModel);
 
       // 2. Target Response
-      const historyForTarget = [...messages, { 
-        id: generateId(), 
-        role: AgentRole.ATTACKER, 
+      const historyForTarget = [...messagesRef.current, {
+        id: generateId(),
+        role: AgentRole.ATTACKER,
         content: attackerMsgContent, 
         modelName: configRef.current.attackerModel,
         timestamp: Date.now() 
@@ -291,8 +303,10 @@ const App: React.FC = () => {
       addMessage(AgentRole.SYSTEM, `API Duel Error: ${error instanceof Error ? error.message : 'Unknown model provider failure'}`);
       setStatus(SimulationStatus.PAUSED);
     }
-
-  }, [messages, currentRound]);
+    } finally {
+      isProcessingRef.current = false;
+    }
+  }, [currentRound]);
 
   // Effect loop
   useEffect(() => {
@@ -305,68 +319,91 @@ const App: React.FC = () => {
   }, [status, currentRound, runTurn]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden font-sans bg-bg text-text">
-      <ConfigPanel
-        config={config}
-        setConfig={setConfig}
-        status={status}
-        onStart={handleStart}
-        onStop={handleStop}
-        onReset={handleReset}
-        onExport={handleExportCSV}
-        onExportMarkdown={handleExportMarkdown}
-        hasData={verdicts.length > 0}
-        onOpenKeyModal={() => setIsKeyModalOpen(true)}
-        apiKeys={apiKeys}
-      />
-
-      <div className="flex-1 flex flex-col relative min-w-0">
-        <header className="h-14 bg-surface border-b border-line flex items-center px-6 justify-between shrink-0 select-none z-20">
-          <div className="flex items-center gap-3">
-            <span className="w-6 h-6 rounded grid place-items-center bg-accent text-accent-ink font-mono font-bold text-sm shrink-0">A</span>
-            <h1 className="font-mono font-semibold text-sm md:text-base tracking-tight text-text">
-              AutoRedTeam
-            </h1>
-            <span className="text-muted text-[10px] font-mono tracking-[0.16em] uppercase hidden sm:inline">Multi-agent simulator</span>
-            {config.useMockMode ? (
-              <span className="bg-surface-2 border border-line text-muted text-[9px] font-mono px-2 py-0.5 rounded-sm font-semibold uppercase tracking-[0.14em]">
-                Mock mode
-              </span>
-            ) : (
-              <span className="bg-accent/10 border border-accent/40 text-accent text-[9px] font-mono px-2 py-0.5 rounded-sm font-semibold uppercase tracking-[0.14em]">
-                ● Live duel
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4 text-[10px] text-muted font-mono tracking-[0.1em]">
-            <span className="hidden md:inline">v1.1.0</span>
-            <span className={status === SimulationStatus.RUNNING ? 'text-accent' : 'text-muted'}>
-              ● {status === SimulationStatus.RUNNING ? 'ACTIVE' : 'IDLE'}
+    <div className="flex flex-col h-screen w-screen overflow-hidden font-sans bg-bg text-text">
+      <header className="h-14 bg-surface border-b border-line flex items-center px-4 sm:px-6 justify-between shrink-0 select-none z-20">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <span className="w-6 h-6 rounded grid place-items-center bg-accent text-accent-ink font-mono font-bold text-sm shrink-0">A</span>
+          <h1 className="font-mono font-semibold text-sm md:text-base tracking-tight text-text shrink-0">
+            AutoRedTeam
+          </h1>
+          <span className="text-muted text-[10px] font-mono tracking-[0.16em] uppercase hidden sm:inline">Multi-agent simulator</span>
+          {config.useMockMode ? (
+            <span className="bg-surface-2 border border-line text-muted text-[9px] font-mono px-2 py-0.5 rounded-sm font-semibold uppercase tracking-[0.14em] hidden sm:inline-block">
+              Mock mode
             </span>
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 rounded-sm border border-line bg-surface-2 text-muted hover:text-text transition-colors"
-              title={theme === 'dark' ? 'Switch to light (Lab Report)' : 'Switch to dark (Signal Console)'}
-              aria-label="Toggle color theme"
-            >
-              {theme === 'dark'
-                ? <Sun className="w-3.5 h-3.5" strokeWidth={1.5} />
-                : <Moon className="w-3.5 h-3.5" strokeWidth={1.5} />}
-            </button>
-          </div>
-        </header>
-        
-        <ChatFeed messages={messages} />
-      </div>
+          ) : (
+            <span className="bg-accent/10 border border-accent/40 text-accent text-[9px] font-mono px-2 py-0.5 rounded-sm font-semibold uppercase tracking-[0.14em] hidden sm:inline-block">
+              ● Live duel
+            </span>
+          )}
+        </div>
 
-      <AnalysisPanel
-        verdicts={verdicts}
-        status={status}
-        currentRound={currentRound}
-        config={config}
-        theme={theme}
-      />
+        <div className="flex items-center gap-3 sm:gap-4 text-[10px] text-muted font-mono tracking-[0.1em] shrink-0">
+          <span className="hidden md:inline">v1.1.0</span>
+          <span className={status === SimulationStatus.RUNNING ? 'text-accent' : 'text-muted'}>
+            ● {status === SimulationStatus.RUNNING ? 'ACTIVE' : 'IDLE'}
+          </span>
+          <button
+            onClick={toggleTheme}
+            className="p-1.5 rounded-sm border border-line bg-surface-2 text-muted hover:text-text transition-colors"
+            title={theme === 'dark' ? 'Switch to light (Lab Report)' : 'Switch to dark (Signal Console)'}
+            aria-label="Toggle color theme"
+          >
+            {theme === 'dark'
+              ? <Sun className="w-3.5 h-3.5" strokeWidth={1.5} />
+              : <Moon className="w-3.5 h-3.5" strokeWidth={1.5} />}
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile pane switcher (hidden on md+ where all three panes show at once) */}
+      <nav className="md:hidden flex shrink-0 border-b border-line bg-surface" role="tablist" aria-label="Panels">
+        {([['config', 'Config'], ['transcript', 'Transcript'], ['telemetry', 'Telemetry']] as const).map(([id, label]) => (
+          <button
+            key={id}
+            role="tab"
+            aria-selected={mobileTab === id}
+            onClick={() => setMobileTab(id)}
+            className={`flex-1 py-2.5 text-[10px] font-mono font-semibold uppercase tracking-[0.12em] border-b-2 transition-colors ${
+              mobileTab === id ? 'border-accent text-accent' : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="flex-1 flex min-h-0">
+        <div className={`${mobileTab === 'config' ? 'flex' : 'hidden'} md:flex w-full md:w-80 shrink-0 min-h-0`}>
+          <ConfigPanel
+            config={config}
+            setConfig={setConfig}
+            status={status}
+            onStart={handleStart}
+            onStop={handleStop}
+            onReset={handleReset}
+            onExport={handleExportCSV}
+            onExportMarkdown={handleExportMarkdown}
+            hasData={verdicts.length > 0}
+            onOpenKeyModal={() => setIsKeyModalOpen(true)}
+            apiKeys={apiKeys}
+          />
+        </div>
+
+        <div className={`${mobileTab === 'transcript' ? 'flex' : 'hidden'} md:flex flex-1 flex-col min-w-0 min-h-0`}>
+          <ChatFeed messages={messages} />
+        </div>
+
+        <div className={`${mobileTab === 'telemetry' ? 'flex' : 'hidden'} md:flex w-full md:w-80 shrink-0 min-h-0`}>
+          <AnalysisPanel
+            verdicts={verdicts}
+            status={status}
+            currentRound={currentRound}
+            config={config}
+            theme={theme}
+          />
+        </div>
+      </div>
 
       <ApiKeyModal
         isOpen={isKeyModalOpen}
