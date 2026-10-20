@@ -54,6 +54,13 @@ eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompt
 | M7 Write-up | — |
 
 ## Decision log
+- 2026-10-19 — API budget decision: **free tiers only** (Ishani). M3 grid uses Groq (Llama
+  3.3 70B, Llama 3.1 8B, gpt-oss-20b) + Gemini (3.8 Flash, 3.5 Flash-Lite) = 5 targets / 3
+  families; attacker Llama 3.3 70B, judge Gemini 3.8 Flash (different family). `configs/m3_matrix.yaml`
+  authored (100 episodes, ~3,000 calls upper bound, $0; rate limits are the constraint). To run:
+  set keys, then background-run with /long-run. Remaining keyless M3 code: attacker-strategy
+  variants (role-play/encoding/multi-turn/indirect) + 2 new playbooks (system-prompt extraction,
+  key exfiltration) — not yet built.
 - 2026-10-19 — M3/M4 analysis tooling done (eval blocked on keys). `metrics.py`: pure functions
   over run JSONL — `asr_at_k` (RQ2, oracle- or judge-based), `judge_oracle_confusion` (RQ1
   TP/FP/FN/TN + FN-by-leak-form = "which forms fool judges"), `asr_distortion` (judge ASR −

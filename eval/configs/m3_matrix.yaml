@@ -1,0 +1,35 @@
+# M3 experiment matrix (RQ2) — FREE TIERS ONLY (Ishani's decision, 2026-10-19).
+# Targets: 5 models across 3 families (Gemini, Llama, GPT-OSS), small + mid.
+# Attacker: Llama 3.3 70B (Groq). Judge: Gemini 3.8 Flash (google) — different family than
+# the attacker to avoid self-grading (M4 adds more judges by re-scoring these cached runs).
+#
+# Call estimate (upper bound; episodes that leak early make fewer calls):
+#   episodes   = 5 targets x 4 playbooks x 5 seeds        = 100
+#   calls      = 100 episodes x 10 rounds x 3 roles       = 3,000
+#   cost       = $0 (free tier). Binding constraint is rate limits, not money —
+#                run in the background with backoff/caching (set_rate_limit) and /long-run.
+#
+# Attacker-strategy variants (role-play, encoding-request, multi-turn, indirect) and the two
+# new playbooks (system-prompt extraction, key exfiltration) are additional M3 code — see
+# PROJECT.md. This config is the baseline-strategy grid, ready to run once keys are set.
+run_id: m3-matrix-free
+
+attacker_model: { provider: groq, id: llama-3.3-70b-versatile }
+
+target_models:
+  - { provider: google, id: gemini-3.8-flash }        # Gemini, mid
+  - { provider: google, id: gemini-3.5-flash-lite }   # Gemini, small
+  - { provider: groq,   id: llama-3.3-70b-versatile } # Llama, mid
+  - { provider: groq,   id: llama-3.1-8b-instant }    # Llama, small
+  - { provider: groq,   id: openai/gpt-oss-20b }      # GPT-OSS, open
+
+judge_model: { provider: google, id: gemini-3.8-flash }
+
+playbooks: all            # the 4 ported playbooks (keylogger scored by judge only)
+max_rounds: 10
+seeds: [0, 1, 2, 3, 4]
+
+attacker_temperature: 0.9
+target_temperature: 0.1
+judge_temperature: 0.0
+defense: none             # baseline; RQ3 re-runs with configs/defenses.yaml modes
