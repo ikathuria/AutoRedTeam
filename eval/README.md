@@ -46,6 +46,7 @@ redteam_eval/
   judges.py       # per-round scoring: oracle (ground truth) + LLM judge (studied in M4)
   defenses.py     # hardened system prompt + oracle-based output filter (RQ3)
   benign_queries.yaml  # benign utility set for false-refusal measurement (RQ3)
+  metrics.py      # ASR@k (RQ2), judge-vs-oracle confusion + ASR distortion (RQ1)
   loop.py         # episode runner + JSONL + resume
   __main__.py     # CLI (redteam-eval)
 configs/          # experiment grids (smoke.yaml, defenses.yaml)

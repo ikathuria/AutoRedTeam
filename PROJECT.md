@@ -47,13 +47,19 @@ eval/ — Python harness (M1): redteam_eval/{config,providers,judges,loop,prompt
 | M0 Cleanup + lit check | ✅ done (2026-10-19) |
 | M1 Python harness | ✅ done (2026-10-19) |
 | M2 Leak oracle | ✅ done (2026-10-19) |
-| M3 Experiment matrix | ⛔ blocked: needs API keys + budget decision |
-| M4 Judge study | ⛔ blocked: needs M3 run data + human labels |
+| M3 Experiment matrix | 🟡 analysis code done (ASR@k); live run blocked on keys + budget |
+| M4 Judge study | 🟡 analysis code done (confusion/distortion); needs run data + human labels |
 | M5 Defenses | 🟡 code done (prompt + oracle filter + benign set); eval blocked on keys |
 | M6 Results in UI | — |
 | M7 Write-up | — |
 
 ## Decision log
+- 2026-10-19 — M3/M4 analysis tooling done (eval blocked on keys). `metrics.py`: pure functions
+  over run JSONL — `asr_at_k` (RQ2, oracle- or judge-based), `judge_oracle_confusion` (RQ1
+  TP/FP/FN/TN + FN-by-leak-form = "which forms fool judges"), `asr_distortion` (judge ASR −
+  oracle ASR), `needs_human` (oracle-neg/judge-pos stratum for M4 labelling). 6 tests on
+  synthetic + verified on real fake-run JSONL; 68 tests total. Real figures/tables need M3 run
+  data. Plotting (matplotlib) deferred — needs data, lives in the `analysis` extra.
 - 2026-10-19 — M5 code done (eval blocked on keys). `defenses.py`: hardened system-prompt
   preamble (prompt defense) + deterministic oracle-based output filter that blocks leaks in
   any oracle-recognised form (catches what the judge misses). Modes none|prompt|filter|both via
