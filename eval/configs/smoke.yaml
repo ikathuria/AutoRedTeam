@@ -1,0 +1,16 @@
+# M1 smoke config: 1 playbook x 1 target x 3 rounds x 2 seeds.
+# Live mode needs GROQ_API_KEY + GEMINI_API_KEY + OPENAI_API_KEY. For a keyless run add --fake.
+run_id: smoke
+
+attacker_model: { provider: groq,   id: llama-3.3-70b-versatile }
+target_models:
+  - { provider: google, id: gemini-3.8-flash }
+judge_model:  { provider: openai, id: gpt-6-luna }
+
+playbooks: [secret_leakage]
+max_rounds: 3
+seeds: [0, 1]
+
+attacker_temperature: 0.9
+target_temperature: 0.1
+judge_temperature: 0.0
